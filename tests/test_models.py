@@ -104,3 +104,46 @@ class TestProductModel(unittest.TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
+    def test_read_a_product(self):
+        """ It should read a product from database """
+        product = ProductFactory()
+        app.logger.info(f"Product: {product}")
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        # Fetch it back
+        fetched_product = Product.find(product.id)
+        self.assertIsNotNone(fetched_product)
+        self.assertEqual(fetched_product.name, product.name)
+        self.assertEqual(fetched_product.description, product.description  )
+        self.assertEqual(Decimal(fetched_product.price), product.price)
+        self.assertEqual(fetched_product.available, product.available)
+        self.assertEqual(fetched_product.category, product.category)
+
+    def test_update_a_product(self):
+        """ It should update a product in the database """
+        product = ProductFactory()
+        app.logger.info(f"Fake Product: {product}")
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        app.logger.info(f"Product created in db: {product}")
+        old_description = product.description
+        original_id = product.id
+        # Change it an save it
+        # update the description property of the product and save it
+        new_description = "updated description: " + product.description
+        product.description = new_description 
+        product.update()
+        self.assertEqual(product.description, new_description)
+        self.assertNotEqual(product.description, old_description)
+        self.assertEqual(product.id, original_id) 
+        # Fetch it back and make sure the id hasn't changed
+        # but the data did change
+        list_product = Product.all()
+        self.assertEqual(len(list_product), 1)
+        fetched_product = list_product[0]
+        self.assertEqual(fetched_product.id, original_id)
+        self.assertEqual(fetched_product.description, product.description)
+
+
