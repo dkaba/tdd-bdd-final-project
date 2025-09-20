@@ -115,7 +115,7 @@ class TestProductModel(unittest.TestCase):
         fetched_product = Product.find(product.id)
         self.assertIsNotNone(fetched_product)
         self.assertEqual(fetched_product.name, product.name)
-        self.assertEqual(fetched_product.description, product.description  )
+        self.assertEqual(fetched_product.description, product.description)
         self.assertEqual(Decimal(fetched_product.price), product.price)
         self.assertEqual(fetched_product.available, product.available)
         self.assertEqual(fetched_product.category, product.category)
@@ -133,11 +133,11 @@ class TestProductModel(unittest.TestCase):
         # Change it an save it
         # update the description property of the product and save it
         new_description = "updated description: " + product.description
-        product.description = new_description 
+        product.description = new_description
         product.update()
         self.assertEqual(product.description, new_description)
         self.assertNotEqual(product.description, old_description)
-        self.assertEqual(product.id, original_id) 
+        self.assertEqual(product.id, original_id)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         list_product = Product.all()
@@ -162,15 +162,15 @@ class TestProductModel(unittest.TestCase):
         # delete the product and make sure it isn't in the database
         product.delete()
         self.assertEqual(len(Product.all()), 0)
-    
+
     def test_list_all_products(self):
         """It should list all products from database """
         product_list = [ProductFactory() for _ in range(5)]
         self.assertEqual(len(Product.all()), 0)
         for product in product_list:
-            product.create()        
-        self.assertEqual(len(Product.all()), 5)
-     
+            product.create()
+            self.assertEqual(len(Product.all()), 5)
+
     # Alternative to list all
     # def test_list_all_products(self):
     #     """It should List all Products in the database"""
@@ -183,7 +183,7 @@ class TestProductModel(unittest.TestCase):
     #     # See if we get back 5 products
     #     products = Product.all()
     #     self.assertEqual(len(products), 5)
-    
+
     def test_find_a_product_by_name(self):
         """It should List all Products having a name"""
         product_list = [ProductFactory() for _ in range(5)]
@@ -193,7 +193,7 @@ class TestProductModel(unittest.TestCase):
         count = len([product for product in product_list if product.name == product_name])
         self.assertTrue(count >= 2)
         self.assertEqual(len(Product.all()), 0)
-         # create the batch of product_list in database
+        # create the batch of product_list in database
         for product in product_list:
             product.create()
         self.assertEqual(len(Product.all()), len(product_list))
@@ -212,7 +212,7 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertEqual(product.available, available)
-    
+
     def test_find_by_category(self):
         """It should Find a Product by category"""
         products = ProductFactory.create_batch(10)
