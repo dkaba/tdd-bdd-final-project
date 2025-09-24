@@ -33,6 +33,8 @@ from service.common import status
 from service.models import db, init_db, Product
 from tests.factories import ProductFactory
 
+from urllib import quote_plus  # noqa: F401 pylint: disable=unused-import
+
 # Disable all but critical errors during normal test run
 # uncomment for debugging failing tests
 # logging.disable(logging.CRITICAL)
@@ -166,7 +168,117 @@ class TestProductRoutes(TestCase):
     #
     # ADD YOUR TEST CASES HERE
     #
+    def test_get_product(self):
+        """ It should return from database a product given it's id """        
+        test_product = self._create_products()[0]
+        response = self.client.get(BASE_URL + f"/{test_product.id}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(data, test_product.serialize())
 
+    def test_get_product_not_found(self):
+        """ It should not return an unknown product """ 
+        id = 0
+        response = self.client.get(BASE_URL + f"/{id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"])
+    
+    def test_update_product(self):
+        # reate product to update
+        test_product = ProductFactory()
+        self.assertIsNotNone(test_product)
+        response = self.client.post(BASE_URL, json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Update the product
+        data = response.get_json()
+        data["description"] = "unknown"
+        response = self.client.put(f"{BASE_URL}/{data['id']}", json=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.get_json()["description"], "unknown")
+    
+
+    def test_update_product_not_found(self):
+        """ It should not update an unknown product """ 
+        id = 0
+        test_product = ProductFactory()
+        self.assertIsNotNone(test_product)
+        response = self.client.put(BASE_URL + f"/{id}", json=test_product.serialize())
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"])
+    
+    def test_delete_product(self):
+        """ It should delete a product given it's id """        
+        test_product = self._create_products()[0]
+        response = self.client.delete(BASE_URL + f"/{test_product.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # make sure it's deleted
+        response = self.client.get(BASE_URL + f"/{test_product.id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_delete_product_not_found(self):
+        """ It should not delete an unknown product """ 
+        id = 0
+        response = self.client.delete(BASE_URL + f"/{id}")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        data = response.get_json()
+        self.assertIn("not found", data["message"])
+
+    def test_list_all_products(self):
+        """ It should get the list of all products """
+        test_products = self._create_products(5)
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertEqual(len(data), len(test_products))
+        for product in data:
+            self.assertIn(product["id"], [p.id for p in test_products])
+
+    def test_query_products_by_name(self):
+        """ It should query products by name """
+        test_products = self._create_products(10)
+        target_product = test_products[0]
+        target_name = target_product.name
+        name_count = len([p for p in test_products if p.name == target_name])
+        self.assertGreaterEqual(name_count, 1)
+        response = self.client.get(BASE_URL, query_string=f"name={quote_plus(target_name)}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertGreaterEqual(len(data), 1)
+        self.assertEqual(len(data), name_count)
+        for product in data:
+            self.assertEqual(product["name"], target_name)
+    
+    def test_query_products_by_category(self):
+        """ It should query products by category """
+        test_products = self._create_products(10)
+        target_product = test_products[0]
+        target_category = target_product.category.name
+        category_count = len([p for p in test_products if p.category.name == target_category])
+        self.assertGreaterEqual(category_count, 1)
+        response = self.client.get(BASE_URL, query_string=f"category={quote_plus(target_category)}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertGreaterEqual(len(data), 1)
+        self.assertEqual(len(data), category_count)
+        for product in data:
+            self.assertEqual(product["category"], target_category)
+    
+    def test_query_products_by_availability(self):
+        """ It should query products by availability """
+        test_products = self._create_products(10)
+        target_product = test_products[0]
+        target_availability = target_product.available
+        availability_count = len([p for p in test_products if p.available == target_availability])
+        self.assertGreaterEqual(availability_count, 1)
+        response = self.client.get(BASE_URL, query_string=f"available={target_availability}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertGreaterEqual(len(data), 1)
+        self.assertEqual(len(data), availability_count)
+        for product in data:
+            self.assertEqual(product["available"], target_availability)
     ######################################################################
     # Utility functions
     ######################################################################

@@ -169,7 +169,7 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(Product.all()), 0)
         for product in product_list:
             product.create()
-            self.assertEqual(len(Product.all()), 5)
+        self.assertEqual(len(Product.all()), 5)
 
     # Alternative to list all
     # def test_list_all_products(self):
