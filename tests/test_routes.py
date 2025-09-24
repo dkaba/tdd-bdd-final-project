@@ -33,7 +33,7 @@ from service.common import status
 from service.models import db, init_db, Product
 from tests.factories import ProductFactory
 
-from urllib import quote_plus  # noqa: F401 pylint: disable=unused-import
+from urllib.parse import quote_plus  # noqa: F401 pylint: disable=unused-import
 
 # Disable all but critical errors during normal test run
 # uncomment for debugging failing tests
@@ -269,7 +269,7 @@ class TestProductRoutes(TestCase):
         """ It should query products by availability """
         test_products = self._create_products(10)
         target_product = test_products[0]
-        target_availability = target_product.available
+        target_availability = True
         availability_count = len([p for p in test_products if p.available == target_availability])
         self.assertGreaterEqual(availability_count, 1)
         response = self.client.get(BASE_URL, query_string=f"available={target_availability}")
@@ -279,6 +279,21 @@ class TestProductRoutes(TestCase):
         self.assertEqual(len(data), availability_count)
         for product in data:
             self.assertEqual(product["available"], target_availability)
+
+    def test_query_products_by_price(self):
+        """ It should query products by price """
+        test_products = self._create_products(10)
+        target_product = test_products[0]
+        target_price = target_product.price
+        price_count = len([p for p in test_products if p.price == target_price])
+        self.assertGreaterEqual(price_count, 1)
+        response = self.client.get(BASE_URL, query_string=f"price={target_price}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.get_json()
+        self.assertGreaterEqual(len(data), 1)
+        self.assertEqual(len(data), price_count)
+        for product in data:
+            self.assertEqual(Decimal(product["price"]), target_price)
     ######################################################################
     # Utility functions
     ######################################################################

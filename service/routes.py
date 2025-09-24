@@ -109,15 +109,23 @@ def list_products():
     name = request.args.get("name")
     price = request.args.get("price")
     category = request.args.get("category")
+    availability = request.args.get("available")
     if name:
         app.logger.info(f"Filtering by name: {name}")
         products = Product.find_by_name(name)
     elif price:
         app.logger.info(f"Filtering by price: {price}")
+        price = float(price)
         products = Product.find_by_price(price)
     elif category:
         app.logger.info(f"Filtering by category: {category}")
+        category = Category[category]
         products = Product.find_by_category(category)
+    elif availability:
+        app.logger.info(f"Filtering by availability: {availability}")
+        # create bool from string
+        available_value = availability.lower() in ["true", "yes", "1"]
+        products = Product.find_by_availability(available_value)
     else:
         app.logger.info("Returning all products")
         products = Product.all()
