@@ -119,7 +119,8 @@ def list_products():
         products = Product.find_by_price(price)
     elif category:
         app.logger.info(f"Filtering by category: {category}")
-        category = Category[category]
+        category = Category[category.upper()]
+        #category_value = getattr(Category, category.upper())
         products = Product.find_by_category(category)
     elif availability:
         app.logger.info(f"Filtering by availability: {availability}")

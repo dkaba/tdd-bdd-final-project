@@ -42,7 +42,7 @@ Scenario: Create a Product
 Scenario: Read a Product
     When I visit the "Home Page"
     And I set the "Name" to "Hat"
-    And I click the "Search" button    
+    And I press the "Search" button    
     Then I should see the message "Success"
     When I copy the "Id" field
     And I press the "Clear" button
@@ -58,10 +58,10 @@ Scenario: Read a Product
 Scenario: Update a Product
     When I visit the "Home Page"
     And I set the "Name" to "Shoes"
-    And I click the "Search" button
+    And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "120.50" in the "Price" field
-    When I change "Price" to "100.99"
+    And I should see "Blue shoes" in the "Description" field
+    When I change "Name" to "Basket"
     And I press the "Update" button
     Then I should see the message "Success"
     When I copy the "Id" field
@@ -69,11 +69,11 @@ Scenario: Update a Product
     And I paste the "Id" field
     And I press the "Retrieve" button
     Then I should see the message "Success"
-    And I should see "120.50" in the "Price" field
+    And I should see "Basket" in the "Name" field
     When I press the "Clear" button
-    And I click the "Search" button
-    Then I should see "100.99" in the "Price" field
-    And I should not see "120.50" in the results
+    And I press the "Search" button
+    Then I should see "Basket" in the results
+    And I should not see "Shoes" in the results
 
 Scenario: Delete a Product
     When I visit the "Home Page"
@@ -104,24 +104,24 @@ Scenario: List all products
 Scenario: Search by category
     When I visit the "Home Page"
     And I press the "Clear" button
-    And I select "HOUSEWARES" in the "Category" dropdown
+    And I select "Food" in the "Category" dropdown
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "Full bed sheets" in the results
+    And I should see "Big Mac" in the results
     And I should not see "Hat" in the results
     And I should not see "Shoes" in the results
-    And I should not see "Big Mac" in the results
+    And I should not see "Full bed sheets" in the results
 
 Scenario: Search by available
     When I visit the "Home Page"
     And I press the "Clear" button
-    And I select "False" in the "Available" dropdown
+    And I select "True" in the "Available" dropdown
     And I press the "Search" button
     Then I should see the message "Success"
-    And I should see "Shoes" in the results
-    And I should not see "Hat" in the results
-    And I should not see "Big Mac" in the results
-    And I should not see "Sheets" in the results
+    And I should see "Hat" in the results
+    And I should see "Big Mac" in the results
+    And I should see "Sheets" in the results
+    And I should not see "Shoes" in the results
 
 Scenario: Search by name
     When I visit the "Home Page"
@@ -130,3 +130,4 @@ Scenario: Search by name
     Then I should see the message "Success"
     And I should see "Sheets" in the "Name" field
     And I should see "Full bed sheets" in the "Description" field
+
